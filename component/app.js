@@ -15,6 +15,7 @@ class App extends Component {
             address: '',
             city: '',
             zip: '',
+            key: null,
             data: [],
         }
     }
@@ -25,11 +26,10 @@ class App extends Component {
         this.setState({
             [nam]: value,
         })
-        console.log(this.state.data)
     }
 
     addData = () => {
-        firebase.database().ref().child('Users').push({
+        firebase.database().ref('Users').push({
             name: this.state.name,
             fName: this.state.fName,
             age: this.state.age,
@@ -39,6 +39,17 @@ class App extends Component {
             city: this.state.city,
             zip: this.state.zip,
         })
+        this.setState({
+            name: '',
+            fName: '',
+            age: '',
+            email: '',
+            number: '',
+            address: '',
+            city: '',
+            zip: '',
+            key:null,
+        })
     }
 
     getData = () => {
@@ -46,33 +57,114 @@ class App extends Component {
         database.on('value',
             (data) => {
                 let userData = data.val();
-                let keys = Object.keys(userData);
-
-                let dataArray = [];
-
-                for (const key of keys) {
-                    dataArray.push({
-                        key: key,
-                        name: userData[key].name,
-                        fName: userData[key].fName,
-                        age: userData[key].age,
-                        email: userData[key].email,
-                        number: userData[key].number,
-                        address: userData[key].address,
-                        city: userData[key].city,
-                        zip: userData[key].zip,
+                if (userData) {
+                    let keys = Object.keys(userData);
+                    let dataArray = [];
+                    for (const key of keys) {
+                        dataArray.push({
+                            key: key,
+                            name: userData[key].name,
+                            fName: userData[key].fName,
+                            age: userData[key].age,
+                            email: userData[key].email,
+                            number: userData[key].number,
+                            address: userData[key].address,
+                            city: userData[key].city,
+                            zip: userData[key].zip,
+                        })
+                    }
+                    this.setState({
+                        data: dataArray
                     })
                 }
-                console.log(dataArray)
-                this.setState({
-                    data: dataArray
-                })
+                else {
+                    this.setState({
+                        data: []
+                    })
+                }
             }
         )
     }
 
     componentDidMount() {
         this.getData();
+    }
+
+    fillForm = (key) => {
+        let userData;
+        let database = firebase.database().ref('Users');
+        database.on('value', (data) => {
+            userData = data.val()
+        })
+        this.setState({
+            name: userData[key].name,
+            fName: userData[key].fName,
+            age: userData[key].age,
+            email: userData[key].email,
+            number: userData[key].number,
+            address: userData[key].address,
+            city: userData[key].city,
+            zip: userData[key].zip,
+            key: key,
+        })
+    }
+
+    updateData = () => {
+        if (this.state.key) {
+            firebase.database().ref().child('/Users/' + this.state.key).update({
+                name: this.state.name,
+                fName: this.state.fName,
+                age: this.state.age,
+                email: this.state.email,
+                number: this.state.number,
+                address: this.state.address,
+                city: this.state.city,
+                zip: this.state.zip,
+            })
+            this.setState({
+                name: '',
+                fName: '',
+                age: '',
+                email: '',
+                number: '',
+                address: '',
+                city: '',
+                zip: '',
+                key: null
+            })
+        }
+    }
+
+    removeDataDirect = (key) => {
+        this.setState({
+            name: '',
+            fName: '',
+            age: '',
+            email: '',
+            number: '',
+            address: '',
+            city: '',
+            zip: '',
+            key: null
+        })
+        firebase.database().ref().child('/Users/' + key).remove();
+    }
+
+    removeDataForm = () => {
+        if (this.state.key) {
+            firebase.database().ref().child('/Users/' + this.state.key).remove();
+        }
+        this.setState({
+            name: '',
+            fName: '',
+            age: '',
+            email: '',
+            number: '',
+            address: '',
+            city: '',
+            zip: '',
+            key: null
+        })
     }
 
     render() {
@@ -116,8 +208,8 @@ class App extends Component {
                     </form>
                     <div className='text-center text-md-left'>
                         <button className="btn btn-primary" onClick={this.addData}>Add</button>
-                        <button className="btn btn-success">Update</button>
-                        <button className="btn btn-danger">Remove</button>
+                        <button className="btn btn-success" onClick={this.updateData}>Update</button>
+                        <button className="btn btn-danger" onClick={this.removeDataForm}>Remove</button>
                     </div>
                 </div>
                 <div className='table-responsive text-nowrap col-md-11 p-0' id="table_background">
@@ -150,11 +242,11 @@ class App extends Component {
                                         <td>{dataObject.city}</td>
                                         <td>{dataObject.zip}</td>
                                         <td>
-                                            <button class='update' data-key={dataObject.key} onClick={() => this.update(dataObject.key)}>
-                                                <i class='fas fa-pencil-alt'></i>
+                                            <button className='update' onClick={() => this.fillForm(dataObject.key)}>
+                                                <i className='fas fa-pencil-alt'></i>
                                             </button>
-                                            <button class='remove' data-key={dataObject.key} onClick={() => this.remove(dataObject.key)}>
-                                                <i class='fas fa-times'></i>
+                                            <button className='remove' onClick={() => this.removeDataDirect(dataObject.key)}>
+                                                <i className='fas fa-times'></i>
                                             </button>
                                         </td>
                                     </tr>
