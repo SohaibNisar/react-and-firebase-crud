@@ -1,0 +1,28 @@
+body {
+    margin: 0px !important;
+    background: #efefef !important;
+    background-size: cover;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    font-family: sans-serif !important;
+    font-weight: 100 !important;
+  }
+  #table_background{
+    background: linear-gradient(45deg, #4d8d99, #5f2c82);
+  }
+  table {
+    border-collapse: collapse;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  }
+  th,td {
+      padding: 15px;
+      background-color: rgba(255,255,255,0.2);
+      color: #fff !important;
+  }
+  th {
+    background-color: #55608f;
+  }
+  td:last-child,th:last-child{
+    text-align: center;
+  }
